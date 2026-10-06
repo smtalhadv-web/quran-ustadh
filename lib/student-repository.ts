@@ -1,5 +1,6 @@
 import {supabaseBrowser} from "./supabase";
 import {defaultStudent,Student} from "./student-store";
+import {QuranClassType} from "./class-types";
 
 export async function getCurrentStudent():Promise<Student>{
  const sb=supabaseBrowser(); if(!sb) return defaultStudent;
@@ -19,8 +20,17 @@ export async function upsertCurrentStudent(s:Student){
  return (await sb.from("students").insert(payload).select().single()).data;
 }
 
-export async function completeCurrentSession(studentId:string){
+export async function completeCurrentSession(studentId:string,classType:QuranClassType,stepCount:number){
  const sb=supabaseBrowser(); if(!sb||!studentId) return;
- await sb.from("lesson_sessions").insert({student_id:studentId,status:"completed",ended_at:new Date().toISOString(),lesson_plan:{sabaq:"78:11-15"},summary:{mock_recitation:true}});
- await sb.from("students").update({current_surah:78,current_ayah:12}).eq("id",studentId);
+ await sb.from("lesson_sessions").insert({
+  student_id:studentId,
+  class_type:classType,
+  status:"completed",
+  ended_at:new Date().toISOString(),
+  lesson_plan:{target:"78:11-15",class_type:classType},
+  summary:{mock_recitation:true,steps_completed:stepCount}
+ });
+ if(classType==="sabaq"||classType==="hifz"){
+  await sb.from("students").update({current_surah:78,current_ayah:12}).eq("id",studentId);
+ }
 }
