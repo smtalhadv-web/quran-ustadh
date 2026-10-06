@@ -1,0 +1,1 @@
+import {NextResponse} from "next/server";export function GET(){return NextResponse.json({ok:true,service:"quran-ustadh-ai",version:"0.2.0"})}
