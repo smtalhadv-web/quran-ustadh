@@ -1,0 +1,12 @@
+alter table students enable row level security;
+alter table student_quran_progress enable row level security;
+alter table lesson_sessions enable row level security;
+alter table recitation_attempts enable row level security;
+alter table mistakes enable row level security;
+alter table revision_schedule enable row level security;
+create policy "students own profile" on students for all using (profile_id=auth.uid()) with check (profile_id=auth.uid());
+create policy "progress via owned student" on student_quran_progress for all using (exists(select 1 from students s where s.id=student_id and s.profile_id=auth.uid())) with check (exists(select 1 from students s where s.id=student_id and s.profile_id=auth.uid()));
+create policy "sessions via owned student" on lesson_sessions for all using (exists(select 1 from students s where s.id=student_id and s.profile_id=auth.uid())) with check (exists(select 1 from students s where s.id=student_id and s.profile_id=auth.uid()));
+create policy "attempts via owned student" on recitation_attempts for all using (exists(select 1 from students s where s.id=student_id and s.profile_id=auth.uid())) with check (exists(select 1 from students s where s.id=student_id and s.profile_id=auth.uid()));
+create policy "mistakes via owned student" on mistakes for all using (exists(select 1 from students s where s.id=student_id and s.profile_id=auth.uid())) with check (exists(select 1 from students s where s.id=student_id and s.profile_id=auth.uid()));
+create policy "revision via owned student" on revision_schedule for all using (exists(select 1 from students s where s.id=student_id and s.profile_id=auth.uid())) with check (exists(select 1 from students s where s.id=student_id and s.profile_id=auth.uid()));
